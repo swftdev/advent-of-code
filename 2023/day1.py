@@ -1,8 +1,7 @@
 import functools as ft
 import math as m
 
-input = ""
-
+input = []
 with open("./input/day1.txt", "r") as f:
     input = f.readlines()
 
@@ -18,37 +17,39 @@ wordObj = {
     "nine": "9"
 }
 
-foundPairs = []
+numbers = []
 
 for r in input:
-    fna = None
+    # Will be tuples holding found (index, value)
+    fnt = None
     lnt = None
-    fnwt = (m.inf, "")
-    lnwt = (-m.inf, "")
 
     for i, l in enumerate(r):
         if l.isnumeric():
-            if not fna:
-                fna = (i, l)
-            lnt = (i, l)
+            # First instance of number
+            if not fnt:
+                fnt = i, l
+            lnt = i, l
+
+    fwt = m.inf, ""
+    lwt = -m.inf, ""
 
     for k, v in wordObj.items():
-        fi = r.find(k)
-        mri = r[::-1].find(k[::-1])
-        li = (len(r) - mri) - 1
+        fi = r.find(k) # First Index
+        mri = r[::-1].find(k[::-1]) # Reversed last index
+        li = (len(r) - mri) - 1 # Last Index
 
-        if fi != -1 and fi < fnwt[0]: fnwt = (fi, k)
-        if mri != -1 and li > lnwt[0]: lnwt = (li, k)
+        # Found match and is closer to beginning
+        if fi != -1 and fi < fwt[0]: fwt = fi, k
 
-    firstValue = None
-    lastValue = None
+        # Found match and is closer to end
+        if mri != -1 and li > lwt[0]: lwt = li, k
 
-    if (fna[0] < fnwt[0]): firstValue = fna[1]
-    else: firstValue = wordObj[fnwt[1]]
+    # First occurrence of number or number word (based on index)
+    fv = fnt[1] if (fnt[0] < fwt[0]) else wordObj[fwt[1]]
+    # Last occurrence of number or number word (based on index)
+    lv = lnt[1] if (lnt[0] > lwt[0]) else wordObj[lwt[1]]
 
-    if (lnt[0] > lnwt[0]): lastValue = lnt[1]
-    else: lastValue = wordObj[lnwt[1]]
-
-    foundPairs.append(int(firstValue + lastValue))
+    numbers.append(int(fv + lv))
     
-print(ft.reduce(lambda a, b: a + b ,foundPairs))
+print(ft.reduce(lambda a, b: a + b, numbers))
